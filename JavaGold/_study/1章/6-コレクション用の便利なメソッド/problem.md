@@ -8,6 +8,8 @@
 - [問題21-2](#問題21-2)
 - [問題22-1](#問題22-1)
 - [問題22-2](#問題22-2)
+- [問題23-1](#問題23-1)
+- [問題23-2](#問題23-2)
 
 <a id="問題20-1"></a>
 ## 問題20-1
@@ -297,6 +299,100 @@ D. 問題なく実行でき、`list3.add(20L)`も成功する
 
 
 解説(概念): 構文自体は普通の変数宣言(「型 変数名 = 式;」)で問題ない。原因は型の不一致: `Arrays.asList()`の戻り値の型は`List<T>`(インタフェース型、しかも実体は`java.util.ArrayList`とは別の非公開クラス)であり、`List`は`ArrayList`の親(より広い型)。「`ArrayList`型の値を`List`型の変数に入れる」(`List<Long> x = new ArrayList<>();`)は成立するが、その逆方向(`List`型の値を、より限定的な`ArrayList`型の変数に直接代入する)はコンパイラが許さない。javacのエラーメッセージも「型変数Tのインスタンスが存在しないので、List<T>はArrayList<Long>に適合しません」という型不一致の趣旨だった。
+
+
+
+
+正解: C
+
+
+
+
+あなたの回答: C
+
+<a id="問題23-1"></a>
+## 問題23-1
+
+```java
+1  import java.util.List;
+2
+3  public class Main {
+4      public static void main(String[] args) {
+5          StringBuilder sb = new StringBuilder("A");
+6          List<StringBuilder> list = List.of(sb);
+7          list.get(0).append("B");
+8          System.out.println(list);
+9      }
+10 }
+```
+
+7行目を実行するとどうなるか。
+
+A. `[AB]`と出力される
+
+B. 7行目で`UnsupportedOperationException`がスローされる
+
+C. 6行目でコンパイルエラーになる
+
+D. 7行目で`ClassCastException`がスローされる
+
+**実施記録**
+
+
+
+
+迷ったポイント: `List.of()`が「変更操作を一切禁止する」ことから、リストが保持しているオブジェクト自体への変更操作(`append()`)も一律にブロックされると誤って推測した。
+
+
+
+
+解説(概念): `List.of()`の不変性は、あくまで**リストという入れ物の構造**(要素の追加・削除・置き換え)に対してのみ働く。`list.get(0)`は単に保持している`StringBuilder`への**参照**を返しているだけで、その先の`StringBuilder`オブジェクト自体は普通に可変なまま。`append()`は`StringBuilder`自身のメソッドであり、`List`の変更操作(`add`/`remove`/`set`)とは無関係なので、何の制約も受けずに実行できる。結果、`list`が参照している`StringBuilder`の中身が書き換わり、出力は`[AB]`になる。「`of()`の不変性は浅い(shallow)」という点がこの問題の核心。
+
+
+
+
+正解: A
+
+
+
+
+あなたの回答: B
+
+<a id="問題23-2"></a>
+## 問題23-2
+
+```java
+1  import java.util.Map;
+2
+3  public class Main {
+4      public static void main(String[] args) {
+5          Map<String, Integer> map = Map.of("A", 1, "B", 2, "C");
+6          System.out.println(map);
+7      }
+8  }
+```
+
+5行目を実行するとどうなるか。
+
+A. `{A=1, B=2, C=null}`と出力される
+
+B. 5行目で`IllegalArgumentException`がスローされる
+
+C. 5行目でコンパイルエラーになる
+
+D. 5行目で`ArrayIndexOutOfBoundsException`がスローされる
+
+**実施記録**
+
+
+
+
+迷ったポイント: なし(一発正解)。
+
+
+
+
+解説(概念): `Map.of()`は`List.of()`/`Set.of()`と違い、**可変長引数(`E...`)のオーバーロードを持たない**。用意されているのは`of()`(0個)から`of(K,V,K,V,...)`(10ペア=20引数)までの**固定引数個数のオーバーロード**のみ。今回の5引数(`"A",1,"B",2,"C"`)はどのオーバーロードの引数個数にも一致しないため、コンパイラは適合するメソッドを見つけられず、実行前にコンパイルエラーになる。`List.of()`/`Set.of()`が可変長引数`(E... elements)`で「奇数個でもとりあえずコンパイルは通る」のとは対照的な点がひっかけ。
 
 
 

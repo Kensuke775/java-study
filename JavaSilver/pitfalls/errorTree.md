@@ -23,6 +23,8 @@ Throwable
     │   ├── UnsupportedEncodingException    (未知の文字エンコーディング)
     │   └── InterruptedIOException
     │
+    ├── SQLException                       (チェック例外, java.sql。DB操作関連。IOExceptionとは無関係な兄弟)
+    │
     ├── ReflectiveOperationException           (チェック例外, リフレクション系の親)
     │   ├── ClassNotFoundException             (コンパイル時にクラスを探せない)
     │   ├── NoSuchMethodException
