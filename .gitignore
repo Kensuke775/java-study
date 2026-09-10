@@ -7,8 +7,13 @@
 # hands-on scratch/experiment files (not meant for git; see feedback_hands_on_editing)
 _play/
 JavaGold/_play/
-JavaSilver/sample/
+JavaSilver/sample/*
 _spacer
+
+# mock1 振り返り用まとめ(.md)は例外的にgit管理する(exN/配下のscratch javaは引き続き除外)
+!JavaSilver/sample/mock1
+JavaSilver/sample/mock1/*
+!JavaSilver/sample/mock1/*.md
 
 # personal daily memos (repo is public)
 memos/
