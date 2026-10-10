@@ -57,3 +57,28 @@ c.getClass();   // class java.util.ArrayList
 ### 落とし穴：`Arrays.asList`の"ArrayList"は別物
 
 `Arrays.asList(...)`の戻り値クラス名にも「`ArrayList`」という文字が入っている（`Arrays$ArrayList`）が、これは**`java.util.ArrayList`とは全くの別クラス**（`Arrays`クラスの内部にひっそり定義された、名前が同じなだけの非公開クラス）。名前が似ているせいで「`Arrays.asList`も内部的に`ArrayList`を作っている」と誤解しやすいので注意。
+
+## `add`は`List`型からでも`ArrayList`型からでも使える
+
+```java
+List<String> list = new ArrayList<>();
+list.add("a");          // OK
+
+ArrayList<String> arrayList = new ArrayList<>();
+arrayList.add("b");     // OK
+```
+→ 検証済み。`add(E e)`は`List`インターフェース自体が定義しているメソッドなので、`ensureCapacity`のような`ArrayList`固有メソッドとは違い、**どちらの型で宣言していても変わらず使える**。
+
+## `add(int index, E element)`：範囲外を指定すると`IndexOutOfBoundsException`
+
+```java
+ArrayList<String> arrayList = new ArrayList<>();
+arrayList.add("b");        // size=1
+arrayList.add(2, "b");     // ← indexが範囲外
+```
+```
+Exception in thread "main" java.lang.IndexOutOfBoundsException: Index: 2, Size: 1
+```
+→ 検証済み。
+
+`add(int index, E e)`（2引数版、指定位置への挿入）で指定できる`index`の範囲は**`0 <= index <= size()`**（末尾に追加する場合の`index`＝現在の`size`まではOK）。これを超えると実行時に`IndexOutOfBoundsException`になる。1引数の`add(E e)`（末尾への追加のみ）にはこの制約が無く、`size`が0でも常に成功する。

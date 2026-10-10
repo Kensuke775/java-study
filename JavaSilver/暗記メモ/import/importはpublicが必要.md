@@ -42,3 +42,32 @@ public class Main {
 | **別パッケージから`import`して**使う | ✅ 必要（`import`はあくまで"視界に入れる"だけで、アクセス権限は別問題） |
 
 `import`は「別パッケージにあるクラスの名前を、フルパス（`ex.b.Bar`）で書かずに済むようにする」ための**便宜的な機能**であって、アクセス制御（`public`/`private`/無指定/`protected`）とは完全に別の仕組み。同じパッケージにいる限りimportすら要らずに使えるが、パッケージを跨いだ瞬間に「`public`が付いているかどうか」という別のゲートが立ちはだかる。ワイルドカードインポート（`import ex.b.*;`）であっても、アクセス権限そのものを突破する力は無い。
+
+## 検証問題（問題59）：1つのFooはOK、もう1つのBarはNGという組み合わせ
+
+```java
+package ex.b;
+class Bar {}           // publicなし
+
+package ex.a;
+public class Foo {}    // publicあり
+
+package ex;
+import ex.a.Foo;        // (A)
+import ex.b.*;          // (B) ワイルドカードインポート
+public class Main {
+    public static void main(String[] args) {
+        new Foo(); new Bar();   // ← Barだけエラー
+    }
+}
+```
+```
+エラー: シンボルを見つけられません
+シンボル: クラス Bar
+```
+
+- `Foo`は`public`が付いているので、`import ex.a.Foo;`経由で問題なく使える
+- `Bar`は`public`が付いていない（package-private）ので、`import ex.b.*;`のようにワイルドカードで"視界には入れて"いても、実際にインスタンス化しようとするとエラーになる
+- **ワイルドカードインポートが届く範囲は「そのパッケージ直下にあるクラス」まで**で、サブパッケージには再帰的に及ばない、という点も合わせて押さえておく（今回のケースでは直接関係ないが、混同しやすい別ルール）
+
+「一部だけ`import`できて、一部だけできない」のではなく、**`import`自体はどちらも成立している（名前は見えている）が、`public`が無い方だけアクセス制御でブロックされる**、という整理が正確。
