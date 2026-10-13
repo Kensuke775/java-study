@@ -20,3 +20,6 @@ memos/
 
 # local Claude Code project settings
 .claude/
+
+# 青本の練習問題（翔泳社の著作物のため公開しない）
+JSTQB/青本練習問題/
